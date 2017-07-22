@@ -7,14 +7,7 @@ from kivy.properties import NumericProperty, ObjectProperty
 # Using this for refence on transformations
 # https://www.gamedev.net/articles/programming/math-and-physics/making-a-game-engine-transformations-r3566/
 
-
-class Canvas2D(Widget):
-    """Root Canvas on wich other Canvas2D elements are placed
-    It supports viewport and element transformations"""
-
-    def __init__(self, **kwargs):
-        super(Canvas2D, self).__init__(**kwargs)
-        self.view_matrix = np.identity(3)
+IDENT_3 = np.matrix(np.identity(3))
 
 
 class Widget2D(Widget):
@@ -27,19 +20,37 @@ class Widget2D(Widget):
         super(Widget2D, self).__init__(**kwargs)
         self.update_matrix()
 
+    def get_parent_matrix(self):
+        try:
+            return self.parent.matrix
+        except AttributeError:
+            return IDENT_3
+
     def update_matrix(self):
-        self.matrix = np.matrix(
+        local_translation = np.matrix(
             ((1, 0, self.coords[0]),
-             (0, 1, self.coords[1]), (0, 0, 1))) * np.array(
+             (0, 1, self.coords[1]),
+             (0, 0, 1)))
+        local_rotation = np.matrix(
             ((cos(self.rotation), -sin(self.rotation), 0),
              (sin(self.rotation), cos(self.rotation), 0),
              (0, 0, 1)))
+        self.matrix = self.get_parent_matrix() * \
+            local_translation * local_rotation
 
     def on_coords(self, widget, coords):
         self.update_matrix()
 
     def on_rotation(self, widget, rotation):
         self.update_matrix()
+
+
+class Canvas2D(Widget2D):
+    """Root Canvas on wich other Canvas2D elements are placed
+    It supports viewport and element transformations"""
+
+    def get_parent_matrix(self):
+        return IDENT_3
 
 
 class Polygon(Widget2D):

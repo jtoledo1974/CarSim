@@ -29,10 +29,10 @@ class CarSimApp(App):
     car = ObjectProperty()
 
     def timer(self, *largs):
-        self.car.move(10)
+        self.car.move(.3)
 
     def on_start(self, **kwargs):
-        Clock.schedule_interval(self.timer, 0.3)
+        Clock.schedule_interval(self.timer, 0.02)
         self.car = Car()
         self.root.add_widget(self.car)
 
