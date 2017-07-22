@@ -60,7 +60,7 @@ class Car(Widget):
         self.update_view_points()
 
 
-class MyApp(App):
+class CarSimApp(App):
 
     car = ObjectProperty()
 
@@ -74,4 +74,4 @@ class MyApp(App):
 
 
 if __name__ == '__main__':
-    MyApp().run()
+    CarSimApp().run()
