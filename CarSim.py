@@ -9,20 +9,25 @@ from kivy.properties import NumericProperty, ObjectProperty
 view_matrix = ObjectProperty(np.identity(3))
 
 
+# Using this for refence on transformations
+# https://www.gamedev.net/articles/programming/math-and-physics/making-a-game-engine-transformations-r3566/
+
+
 class Car(Widget):
 
-    coords = ObjectProperty(np.array((50, 50)))
+    # Properties don't work well with Numpy arrays
+    coords = ObjectProperty((50, 50), force_dispatch=True)
     heading = NumericProperty(0)
     rotation = NumericProperty(0.0)
 
-    matrix = ObjectProperty(np.identity(3))
     points = ObjectProperty((-9, -20, 9, -20, 9, 20, 9, -20))
     view_points = ObjectProperty((0, 0))
 
-    stearing = NumericProperty(0.0)
+    steering = NumericProperty(0.0)
 
     def __init__(self, **kwargs):
         super(Car, self).__init__(**kwargs)
+        self.matrix = np.identity(3)
         self.update_view_points()
 
     def update_view_points(self):
@@ -42,11 +47,9 @@ class Car(Widget):
             p = self.matrix * np.transpose(np.matrix(p))
             x, y = p[0, 0], p[1, 0]
             res += (x, y)
-        print(res)
         return res
 
     def move(self, d):
-        print(self.coords)
         self.coords = self.coords + np.array((d, d))
         self.heading = self.heading + d
         pass
