@@ -15,6 +15,9 @@ class Widget2D(Widget):
     # Properties don't work well with Numpy arrays
     coords = ObjectProperty((0, 0), force_dispatch=True)
     rotation = NumericProperty(0.0)
+    scale_x = NumericProperty(1)
+    scale_y = NumericProperty(1)
+    scale = NumericProperty(1)
 
     def __init__(self, **kwargs):
         super(Widget2D, self).__init__(**kwargs)
@@ -27,21 +30,34 @@ class Widget2D(Widget):
             return IDENT_3
 
     def update_matrix(self):
-        local_translation = np.matrix(
+        translation = np.matrix(
             ((1, 0, self.coords[0]),
              (0, 1, self.coords[1]),
              (0, 0, 1)))
-        local_rotation = np.matrix(
+        scale = np.matrix(
+            ((self.scale_x, 0, 0),
+             (0, self.scale_y, 0),
+             (0, 0, 1)))
+        rotation = np.matrix(
             ((cos(self.rotation), -sin(self.rotation), 0),
              (sin(self.rotation), cos(self.rotation), 0),
              (0, 0, 1)))
-        self.matrix = self.get_parent_matrix() * \
-            local_translation * local_rotation
+        self.matrix = self.get_parent_matrix() * translation * scale * rotation
 
     def on_coords(self, widget, coords):
         self.update_matrix()
 
     def on_rotation(self, widget, rotation):
+        self.update_matrix()
+
+    def on_scale_x(self, widget, scale_x):
+        self.update_matrix()
+
+    def on_scale_y(self, widget, scale_y):
+        self.update_matrix()
+
+    def on_scale(self, widget, scale):
+        self.scale_x = self.scale_y = scale
         self.update_matrix()
 
 

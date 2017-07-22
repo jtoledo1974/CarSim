@@ -29,6 +29,7 @@ class CarSimApp(App):
     car = ObjectProperty()
 
     def timer(self, *largs):
+        self.root.scale = self.root.scale * 1.01
         self.car.move(.3)
 
     def on_start(self, **kwargs):
