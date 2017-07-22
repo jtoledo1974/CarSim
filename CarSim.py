@@ -10,6 +10,7 @@ from Canvas2D import Polygon
 
 class Car(Polygon):
 
+    points = ObjectProperty((-9, -20, 9, -20, 9, 20, 9, -20))
     heading = NumericProperty(0)
     steering = NumericProperty(0.0)
 
