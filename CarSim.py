@@ -13,7 +13,16 @@ view_matrix = ObjectProperty(np.identity(3))
 # https://www.gamedev.net/articles/programming/math-and-physics/making-a-game-engine-transformations-r3566/
 
 
-class Car(Widget):
+class Canvas2D(Widget):
+    """Root Canvas on wich other Canvas2D elements are placed
+    It supports viewport and element transformations"""
+
+    def __init__(self, **kwargs):
+        super(Canvas2D, self).__init__(**kwargs)
+        self.view_matrix = np.identity(3)
+
+
+class Polygon(Widget):
 
     # Properties don't work well with Numpy arrays
     coords = ObjectProperty((50, 50), force_dispatch=True)
@@ -26,7 +35,7 @@ class Car(Widget):
     steering = NumericProperty(0.0)
 
     def __init__(self, **kwargs):
-        super(Car, self).__init__(**kwargs)
+        super(Polygon, self).__init__(**kwargs)
         self.matrix = np.identity(3)
         self.update_view_points()
 
@@ -50,8 +59,9 @@ class Car(Widget):
         return res
 
     def move(self, d):
-        self.coords = self.coords + np.array((d, d))
-        self.heading = self.heading + d
+        # self.coords = self.coords + np.array((d, d))
+        # self.heading = self.heading + d
+        self.rotation = self.rotation + d * pi / 180
         pass
 
     def on_coords(self, widget, coords):
@@ -60,6 +70,9 @@ class Car(Widget):
     def on_heading(self, widget, heading):
         self.heading = self.heading % 360
         self.rotation = - self.heading * pi / 180
+        self.update_view_points()
+
+    def on_rotation(self, widget, rotation):
         self.update_view_points()
 
 
@@ -72,7 +85,7 @@ class CarSimApp(App):
 
     def on_start(self, **kwargs):
         Clock.schedule_interval(self.timer, 0.3)
-        self.car = Car()
+        self.car = Polygon()
         self.root.add_widget(self.car)
 
 
