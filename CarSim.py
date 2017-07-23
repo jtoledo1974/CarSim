@@ -6,7 +6,11 @@ from kivy.config import Config
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.core.window import Window
 
-from Canvas2D import Widget2D, transform_vector_2D, Rectangle2D
+from Canvas2D import Widget2D, transform_vector_2D, Rectangle2D, Arc2D
+
+
+class TurnCircle(Arc2D):
+    circle: ObjectProperty((0, 0, 0))
 
 
 class Car(Widget2D):
@@ -28,13 +32,27 @@ class Car(Widget2D):
         self.steering = self.steering + s_input
         if fabs(self.steering) > 1:
             if self.turning_center is None:
+
                 tc = Rectangle2D()
-                tc.coords = self.calc_turning_center()
+                coords = tc.coords = self.calc_turning_center()
                 tc.size = (0.1, 0.1)
                 self.add_widget(tc)
                 self.turning_center = tc
-            self.turning_center.coords = self.calc_turning_center()
+
+                w = TurnCircle()
+                w.coords = coords
+                w.circle = (0, 0, coords[0])
+                self.add_widget(w)
+                self.turn_circle = w
+
+            coords = self.calc_turning_center()
+            self.turning_center.coords = coords
+            self.turn_circle.coords = coords
+            self.turn_circle.circle = (0, 0, coords[0])
+
         elif self.turning_center is not None:
+            self.remove_widget(self.turn_circle)
+            del(self.turn_circle)
             self.remove_widget(self.turning_center)
             self.turning_center = None
 

@@ -18,6 +18,13 @@ Builder.load_string("""
         Line:
             points: self.view_points
 
+<Arc2D>:
+    canvas:
+        Color:
+            rgba: self.color
+        Line:
+            circle: self.view_circle
+
 
 <Rectangle2D>:
     canvas:
@@ -184,6 +191,25 @@ class Line2D(Points2D):
 
     def on_color(self, widget, color):
         self.update_view_points()
+
+
+class Arc2D(Line2D):
+
+    circle = ObjectProperty((0, 0, 0))
+    view_circle = ObjectProperty((0, 0, 0))
+
+    def update_circle(self):
+        self.update_matrix()
+
+        circle = list(self.transform_point(self.circle[:2]))
+        radius = np.linalg.norm(self.transform_vector((self.circle[2], 0)))
+        self.view_circle = tuple(circle + [radius] + list(self.circle[3:]))
+
+    def on_circle(self, widget, circle):
+        self.update_circle()
+
+    def update(self):
+        self.update_circle()
 
 
 class Rectangle2D(Line2D):
