@@ -11,7 +11,7 @@ from kivy.lang.builder import Builder
 IDENT_3 = np.matrix(np.identity(3))
 
 Builder.load_string("""
-<Line>:
+<Line2D>:
     canvas:
         Color:
             rgba: self.color
@@ -19,7 +19,7 @@ Builder.load_string("""
             points: self.view_points
 
 
-<Rectangle>:
+<Rectangle2D>:
     canvas:
         Quad:
             points: self.view_points
@@ -96,13 +96,13 @@ class Canvas2D(Widget2D):
         return IDENT_3
 
 
-class Points(Widget2D):
+class Points2D(Widget2D):
 
     points = ObjectProperty(())
     view_points = ObjectProperty((0, 0))
 
     def __init__(self, **kwargs):
-        super(Points, self).__init__(**kwargs)
+        super(Points2D, self).__init__(**kwargs)
         self.update_view_points()
 
     def update_view_points(self):
@@ -113,16 +113,19 @@ class Points(Widget2D):
             res += self.transform_point(p)
         self.view_points = tuple(res)
 
+    def on_points(self, widget, points):
+        self.update_view_points()
+
     def on_coords(self, widget, coords):
-        super(Points, self).on_coords(widget, coords)
+        super(Points2D, self).on_coords(widget, coords)
         self.update_view_points()
 
     def on_rotation(self, widget, rotation):
-        super(Points, self).on_rotation(widget, rotation)
+        super(Points2D, self).on_rotation(widget, rotation)
         self.update_view_points()
 
 
-class Line(Points):
+class Line2D(Points2D):
 
     color = ObjectProperty((1, 1, 1, 1))  # RGBA
 
@@ -130,7 +133,7 @@ class Line(Points):
         self.update_view_points()
 
 
-class Rectangle(Line):
+class Rectangle2D(Line2D):
 
     pos = ObjectProperty((0, 0))
     size = ObjectProperty((0, 0))
@@ -138,7 +141,7 @@ class Rectangle(Line):
 
     def __init__(self, **kwargs):
         self.update_points()
-        super(Rectangle, self).__init__(**kwargs)
+        super(Rectangle2D, self).__init__(**kwargs)
 
     def update_points(self):
         p_x, p_y, s_x, s_y = self.pos + self.size

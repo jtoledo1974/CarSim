@@ -5,10 +5,10 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.properties import NumericProperty, ObjectProperty
 
-from Canvas2D import Rectangle
+from Canvas2D import Rectangle2D
 
 
-class Car(Rectangle):
+class Car(Rectangle2D):
 
     color = ObjectProperty((1, 0, 0, 1))
     pos = ObjectProperty((-9, -20))
@@ -19,7 +19,7 @@ class Car(Rectangle):
     def move(self, d):
         self.coords = self.coords + np.array((d, d))
         self.heading = self.heading + d
-        
+
     def on_heading(self, widget, heading):
         self.heading = self.heading % 360
         self.rotation = - self.heading * pi / 180
