@@ -3,11 +3,22 @@ import numpy as np
 
 from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty, ObjectProperty
+from kivy.lang.builder import Builder
 
 # Using this for refence on transformations
 # https://www.gamedev.net/articles/programming/math-and-physics/making-a-game-engine-transformations-r3566/
 
 IDENT_3 = np.matrix(np.identity(3))
+
+Builder.load_string("""
+<Line>:
+    canvas:
+        Color:
+            rgba: (0, 1, 1, 1)
+        Line:
+            points: self.view_points
+
+""")
 
 
 class Widget2D(Widget):
@@ -69,13 +80,13 @@ class Canvas2D(Widget2D):
         return IDENT_3
 
 
-class Polygon(Widget2D):
+class Points(Widget2D):
 
     points = ObjectProperty(())
     view_points = ObjectProperty((0, 0))
 
     def __init__(self, **kwargs):
-        super(Polygon, self).__init__(**kwargs)
+        super(Points, self).__init__(**kwargs)
         self.update_view_points()
 
     def update_view_points(self):
@@ -93,9 +104,13 @@ class Polygon(Widget2D):
         return res
 
     def on_coords(self, widget, coords):
-        super(Polygon, self).on_coords(widget, coords)
+        super(Points, self).on_coords(widget, coords)
         self.update_view_points()
 
     def on_rotation(self, widget, rotation):
-        super(Polygon, self).on_rotation(widget, rotation)
+        super(Points, self).on_rotation(widget, rotation)
         self.update_view_points()
+
+
+class Line(Points):
+    pass

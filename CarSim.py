@@ -5,10 +5,10 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.properties import NumericProperty, ObjectProperty
 
-from Canvas2D import Polygon
+from Canvas2D import Line
 
 
-class Car(Polygon):
+class Car(Line):
 
     points = ObjectProperty((-9, -20, 9, -20, 9, 20, 9, -20))
     heading = NumericProperty(0)
@@ -29,8 +29,8 @@ class CarSimApp(App):
     car = ObjectProperty()
 
     def timer(self, *largs):
-        self.root.scale = self.root.scale * 1.01
         self.car.move(.3)
+        print(self.car.points, self.car.view_points)
 
     def on_start(self, **kwargs):
         Clock.schedule_interval(self.timer, 0.02)
