@@ -5,25 +5,24 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.properties import NumericProperty, ObjectProperty
 
-from Canvas2D import Rectangle2D
+from Canvas2D import Widget2D
 
 
-class Car(Rectangle2D):
+class Car(Widget2D):
 
-    color = ObjectProperty((1, 0, 0, 1))
-    pos = ObjectProperty((-9, -20))
-    size = ObjectProperty((18, 40))
     heading = NumericProperty(0)
     steering = NumericProperty(0.0)
 
     def move(self, d):
-        self.coords = self.coords + np.array((d, d))
-        self.heading = self.heading + d
+        # self.coords = self.coords + np.array((d, d))
+        # self.heading = self.heading + d / 10
+        self.heading = 270
+        pass
 
     def on_heading(self, widget, heading):
         self.heading = self.heading % 360
         self.rotation = - self.heading * pi / 180
-        self.update_view_points()
+        self.update()
 
 
 class CarSimApp(App):
@@ -32,6 +31,7 @@ class CarSimApp(App):
 
     def timer(self, *largs):
         self.car.move(.3)
+        # self.root.scale = self.root.scale * 1.001
 
     def on_start(self, **kwargs):
         Clock.schedule_interval(self.timer, 0.02)

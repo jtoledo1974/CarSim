@@ -1,10 +1,69 @@
+#: import math math
+
 <Axis@Widget2D>:
-	coords: (100, 100)
 	Line2D:
-		points: (1, 1, 100, 1)
+		points: (0, 0, 10, 0)
 	Line2D:
-		points: (1, 1, 1, 100)
+		points: (0, 0, 0, 10)
+
+<Wheel@Rectangle2D>:
+	color: (0, 1, 0, 1)
+	angle: 0
+	t_width: float(self.parent.tire[:3])
+	aspect: float(self.parent.tire[4:6])
+	wheel: float(self.parent.tire[-2:]) * 25.4
+	t_height: (2 * self.t_width * self.aspect / 100 + self.wheel)
+	size: (self.t_width / 1000, self.t_height / 1000)
+	rotation: - (self.angle % 360) * math.pi / 180
+
+
+<Car>:
+	coords: (5, 5)
+
+	length: 3.731
+	width: 1.922
+	wheelbase: 2.315
+	track: 1.437
+	wheel_to_front: .787
+	tire: "175/65R14"
+
+	Rectangle2D:
+		id: body
+		color: (1, 1, 0, 1)
+		centered: True
+		size: (self.parent.width, self.parent.length)
+	Wheel:
+		id: lfw
+		coords: (-self.parent.track/2, self.parent.length/2 - self.parent.wheel_to_front)
+	Wheel:
+		id: rfw
+		coords: (self.parent.track/2, self.parent.length/2 - self.parent.wheel_to_front)
+	Wheel:
+		id: lbw
+		coords: (-self.parent.track/2, self.parent.length/2 - self.parent.wheel_to_front - self.parent.wheelbase)
+	Wheel:
+		id: lfw
+		coords: (self.parent.track/2, self.parent.length/2 - self.parent.wheel_to_front - self.parent.wheelbase)
+
+<Peugeot1007@Car>:
+	id: Peugeot1007
+
+<Twizy@Car>:
+	id: Twizy
+	length: 2.337
+	width: 1.396
+	wheelbase: 1.686
+	track: 1.232
+	wheel_to_front: 0.313
+	tire: "125/80R13"
 
 Canvas2D:
+	scale: 30
+	coords: (100, 100)
 	Axis:
+	Axis:
+		coords: (100, 100)
+		scale: 10
+	Twizy:
+		coords: (8, 5)
 
