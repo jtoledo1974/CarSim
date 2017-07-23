@@ -8,7 +8,7 @@
 
 <Wheel@Rectangle2D>:
 	color: (0, 1, 0, 1)
-	angle: 0
+	angle: 0.0
 	t_width: float(self.parent.tire[:3])
 	aspect: float(self.parent.tire[4:6])
 	wheel: float(self.parent.tire[-2:]) * 25.4
@@ -34,9 +34,11 @@
 		size: (self.parent.width, self.parent.length)
 	Wheel:
 		id: lfw
+		angle: self.parent.steering
 		coords: (-self.parent.track/2, self.parent.length/2 - self.parent.wheel_to_front)
 	Wheel:
 		id: rfw
+		angle: self.parent.steering
 		coords: (self.parent.track/2, self.parent.length/2 - self.parent.wheel_to_front)
 	Wheel:
 		id: lbw

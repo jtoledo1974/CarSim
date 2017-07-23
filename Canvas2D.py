@@ -201,7 +201,6 @@ class Rectangle2D(Line2D):
         p_x, p_y, s_x, s_y = self.pos + self.size
         self.points = self.pos + (p_x + s_x, p_y) \
             + (p_x + s_x, p_y + s_y) + (p_x, p_y + s_y)
-        print(self.points)
         self.update_view_points()
 
     def on_pos(self, widget, pos):

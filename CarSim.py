@@ -12,12 +12,16 @@ from Canvas2D import Widget2D, transform_vector_2D
 class Car(Widget2D):
 
     heading = NumericProperty(0)
-    steering = NumericProperty(0.0)
+    steering = NumericProperty(0)
 
     def move(self, delta):
         delta = transform_vector_2D(self.rotation_matrix, delta)
         x, y, dx, dy = self.coords + delta
         self.coords = (x + dx, y + dy)
+
+    def turn(self, s_input):
+        s_input = s_input * self.parent.scale
+        self.steering = self.steering + s_input
 
     def on_heading(self, widget, heading):
         self.heading = self.heading % 360
@@ -38,6 +42,7 @@ class Car(Widget2D):
         if 'button' in touch.profile:
             b = touch.button
             if b == 'left':
+                self.turn(float(vector[0]))
                 self.move((0, vector[1]))
             elif b == 'right':
                 self.move(vector)
