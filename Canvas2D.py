@@ -60,6 +60,11 @@ class Widget2D(Widget):
              (sin(self.rotation), cos(self.rotation), 0),
              (0, 0, 1)))
         self.matrix = self.get_parent_matrix() * translation * scale * rotation
+        for w in self.children:
+            w.update()
+
+    def update(self):
+        self.update_matrix()
 
     def transform_point(self, p):
         p = p + (1, )
@@ -103,6 +108,9 @@ class Points2D(Widget2D):
 
     def __init__(self, **kwargs):
         super(Points2D, self).__init__(**kwargs)
+        self.update_view_points()
+
+    def update(self):
         self.update_view_points()
 
     def update_view_points(self):
