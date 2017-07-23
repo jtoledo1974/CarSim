@@ -2,6 +2,7 @@ from math import pi
 
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.config import Config
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.core.window import Window
 
@@ -14,7 +15,6 @@ class Car(Widget2D):
     steering = NumericProperty(0.0)
 
     def move(self, delta):
-        delta = (0, delta[1])
         delta = transform_vector_2D(self.rotation_matrix, delta)
         x, y, dx, dy = self.coords + delta
         self.coords = (x + dx, y + dy)
@@ -32,8 +32,17 @@ class Car(Widget2D):
     def on_touch_move(self, touch):
         if touch.grab_current is not self:
             return True
+
         vector = self.inv_transform_vector(touch.dpos)
-        self.move(vector)
+
+        if 'button' in touch.profile:
+            b = touch.button
+            if b == 'left':
+                self.move((0, vector[1]))
+            elif b == 'right':
+                self.move(vector)
+            elif b == 'middle':
+                self.heading = self.heading + touch.dpos[0]
 
 
 class CarSimApp(App):
@@ -50,6 +59,8 @@ class CarSimApp(App):
         self.car.heading = 270
 
         Window.bind(on_keyboard=self.on_keypress)
+
+        Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
     def on_keypress(self, window, keycode1, keycode2, text, modifiers):
         print("%s: on_keypress k1: %s, k2: %s, text: %s, mod: %s" % (
