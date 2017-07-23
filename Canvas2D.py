@@ -27,6 +27,37 @@ Builder.load_string("""
 """)
 
 
+def point_inside_polygon(x, y, poly):
+    n = len(poly)
+    inside = False
+
+    p1x, p1y = poly[0]
+    for i in range(n + 1):
+        p2x, p2y = poly[i % n]
+        if y > min(p1y, p2y):
+            if y <= max(p1y, p2y):
+                if x <= max(p1x, p2x):
+                    if p1y != p2y:
+                        xints = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+                    if p1x == p2x or x <= xints:
+                        inside = not inside
+        p1x, p1y = p2x, p2y
+
+    return inside
+
+
+def transform_point_2D(matrix, p):
+    p = p + (1, )
+    v = matrix * np.transpose(np.matrix(p))
+    return (v[0, 0], v[1, 0])
+
+
+def transform_vector_2D(matrix, v):
+    v = v + (0, )
+    v = matrix * np.transpose(np.matrix(v))
+    return (v[0, 0], v[1, 0])
+
+
 class Widget2D(Widget):
 
     # Properties don't work well with Numpy arrays
@@ -47,24 +78,24 @@ class Widget2D(Widget):
             return IDENT_3
 
     def update_matrix(self):
-        translation = np.matrix(
+        self.translation_matrix = t = np.matrix(
             ((1, 0, self.coords[0]),
              (0, 1, self.coords[1]),
              (0, 0, 1)))
-        scale = np.matrix(
+        self.scale_matrix = s = np.matrix(
             ((self.scale_x, 0, 0),
              (0, self.scale_y, 0),
              (0, 0, 1)))
-        rotation = np.matrix(
+        self.rotation_matrix = r = np.matrix(
             ((cos(self.rotation), -sin(self.rotation), 0),
              (sin(self.rotation), cos(self.rotation), 0),
              (0, 0, 1)))
-        self.matrix = self.get_parent_matrix() * translation * scale * rotation
+        self.matrix = self.get_parent_matrix() * t * s * r
+        self.inv_matrix = self.matrix.I
         for w in self.children:
             try:
                 w.update()
             except AttributeError:  # Other standard widgets
-                print("Child w has no update method")
                 pass
 
     def update(self):
@@ -78,6 +109,16 @@ class Widget2D(Widget):
     def transform_vector(self, v):
         v = v + (0, )
         v = self.matrix * np.transpose(np.matrix(v))
+        return (v[0, 0], v[1, 0])
+
+    def inv_transform_point(self, v):
+        v = v + (1, )
+        p = self.inv_matrix * np.transpose(np.matrix(v))
+        return (p[0, 0], p[1, 0])
+
+    def inv_transform_vector(self, v):
+        v = v + (0, )
+        v = self.inv_matrix * np.transpose(np.matrix(v))
         return (v[0, 0], v[1, 0])
 
     def on_coords(self, widget, coords):
@@ -173,3 +214,9 @@ class Rectangle2D(Line2D):
 
     def on_centered(self, widget, centered):
         self.update_points()
+
+    def collide_point(self, x, y):
+        # For other optimized strategies see
+        # https://stackoverflow.com/questions/16750618/whats-an-efficient-way-to-find-if-a-point-lies-in-the-convex-hull-of-a-point-cl
+        poly = tuple(zip(self.view_points[0::2], self.view_points[1::2]))
+        return point_inside_polygon(x, y, poly)
