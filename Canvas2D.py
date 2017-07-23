@@ -18,6 +18,14 @@ Builder.load_string("""
         Line:
             points: self.view_points
 
+
+<Rectangle>:
+    canvas:
+        Color:
+            rgba: (0, 1, 1, 1)
+        Quad:
+            points: self.view_points
+
 """)
 
 
@@ -55,6 +63,11 @@ class Widget2D(Widget):
              (0, 0, 1)))
         self.matrix = self.get_parent_matrix() * translation * scale * rotation
 
+    def transform_point(self, p):
+        p = p + (1, )
+        v = self.matrix * np.transpose(np.matrix(p))
+        return (v[0, 0], v[1, 0])
+
     def on_coords(self, widget, coords):
         self.update_matrix()
 
@@ -91,17 +104,8 @@ class Points(Widget2D):
 
     def update_view_points(self):
         self.update_matrix()
-        self.view_points = self.transform(self.points)
-
-    def transform(self, points):
-        # De manera general es mejor utilizar un yield, supongo
-        points = zip(points[0::2], points[1::2], [1] * int((len(points) / 2)))
-        res = []
-        for p in points:
-            p = self.matrix * np.transpose(np.matrix(p))
-            x, y = p[0, 0], p[1, 0]
-            res += (x, y)
-        return res
+        points = zip(self.points[0::2], self.points[1::2])
+        self.view_points = tuple([self.transform_point(p) for p in points])
 
     def on_coords(self, widget, coords):
         super(Points, self).on_coords(widget, coords)
@@ -114,3 +118,11 @@ class Points(Widget2D):
 
 class Line(Points):
     pass
+
+
+class Rectangle(Line):
+    pos = ObjectProperty((0, 0))
+    size = ObjectProperty((0, 0))
+
+    def update_view_points(self):
+        self.update_matrix()

@@ -10,7 +10,8 @@ from Canvas2D import Line
 
 class Car(Line):
 
-    points = ObjectProperty((-9, -20, 9, -20, 9, 20, 9, -20))
+    points = ObjectProperty((-9, -20, -9, 20, 9, 20, 9, -20, -9, -20))
+    dimensions = ObjectProperty((18, 40))
     heading = NumericProperty(0)
     steering = NumericProperty(0.0)
 
