@@ -2,7 +2,7 @@ from math import sin, cos
 import numpy as np
 
 from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty, ObjectProperty
+from kivy.properties import NumericProperty, ObjectProperty, BooleanProperty
 from kivy.lang.builder import Builder
 
 # Using this for refence on transformations
@@ -61,7 +61,11 @@ class Widget2D(Widget):
              (0, 0, 1)))
         self.matrix = self.get_parent_matrix() * translation * scale * rotation
         for w in self.children:
-            w.update()
+            try:
+                w.update()
+            except AttributeError:  # Other standard widgets
+                print("Child w has no update method")
+                pass
 
     def update(self):
         self.update_matrix()
@@ -145,6 +149,7 @@ class Rectangle2D(Line2D):
 
     pos = ObjectProperty((0, 0))
     size = ObjectProperty((0, 0))
+    centered = BooleanProperty(True)
     view_points = ObjectProperty((0, 0, 0, 0, 0, 0, 0, 0))
 
     def __init__(self, **kwargs):
@@ -162,4 +167,9 @@ class Rectangle2D(Line2D):
         self.update_points()
 
     def on_size(self, widget, size):
+        if self.centered:
+            self.pos = (-self.size[0] / 2, -self.size[1] / 2)
+        self.update_points()
+
+    def on_centered(self, widget, centered):
         self.update_points()
