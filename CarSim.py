@@ -10,6 +10,7 @@ from Canvas2D import Rectangle
 
 class Car(Rectangle):
 
+    color = ObjectProperty((1, 0, 0, 1))
     pos = ObjectProperty((-9, -20))
     size = ObjectProperty((18, 40))
     heading = NumericProperty(0)
@@ -18,7 +19,7 @@ class Car(Rectangle):
     def move(self, d):
         self.coords = self.coords + np.array((d, d))
         self.heading = self.heading + d
-
+        
     def on_heading(self, widget, heading):
         self.heading = self.heading % 360
         self.rotation = - self.heading * pi / 180

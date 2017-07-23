@@ -14,15 +14,13 @@ Builder.load_string("""
 <Line>:
     canvas:
         Color:
-            rgba: (0, 1, 1, 1)
+            rgba: self.color
         Line:
             points: self.view_points
 
 
 <Rectangle>:
     canvas:
-        Color:
-            rgba: (0, 1, 1, 1)
         Quad:
             points: self.view_points
 
@@ -125,7 +123,11 @@ class Points(Widget2D):
 
 
 class Line(Points):
-    pass
+
+    color = ObjectProperty((1, 1, 1, 1))  # RGBA
+
+    def on_color(self, widget, color):
+        self.update_view_points()
 
 
 class Rectangle(Line):
