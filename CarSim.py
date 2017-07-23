@@ -62,13 +62,14 @@ class Car(Widget2D):
         self.update()
 
     def on_touch_down(self, touch):
-        # will receive all motion events.
+        print("Car touch")
         if (self.ids['body'].collide_point(*touch.pos)):
             touch.grab(self)
+            return True
 
     def on_touch_move(self, touch):
         if touch.grab_current is not self:
-            return True
+            return
 
         vector = self.inv_transform_vector(touch.dpos)
 
@@ -81,6 +82,8 @@ class Car(Widget2D):
                 self.move(vector)
             elif b == 'middle':
                 self.heading = self.heading + touch.dpos[0]
+
+        return True
 
 
 class CarSimApp(App):
@@ -96,6 +99,9 @@ class CarSimApp(App):
         self.root.add_widget(self.car)
         self.car.heading = 270
 
+        self.root.bind(on_touch_down=self.on_touch_down)
+        self.root.bind(on_touch_move=self.on_touch_move)
+
         Window.bind(on_keyboard=self.on_keypress)
 
         Config.set('input', 'mouse', 'mouse,disable_multitouch')
@@ -104,6 +110,14 @@ class CarSimApp(App):
         print("%s: on_keypress k1: %s, k2: %s, text: %s, mod: %s" % (
             "CarSim", keycode1, keycode2, text, modifiers))
         return False
+
+    def on_touch_down(self, widget, touch):
+        print("Canvas touch")
+        if 'button' in touch.profile:
+            print(touch.button)
+
+    def on_touch_move(self, widget, touch):
+        pass
 
 
 if __name__ == '__main__':
