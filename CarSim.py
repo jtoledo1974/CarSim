@@ -1,4 +1,4 @@
-from math import pi
+from math import pi, fabs, tan
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -6,22 +6,37 @@ from kivy.config import Config
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.core.window import Window
 
-from Canvas2D import Widget2D, transform_vector_2D
+from Canvas2D import Widget2D, transform_vector_2D, Rectangle2D
 
 
 class Car(Widget2D):
 
     heading = NumericProperty(0)
     steering = NumericProperty(0)
+    turning_center = ObjectProperty(None, allownone=True)
 
     def move(self, delta):
         delta = transform_vector_2D(self.rotation_matrix, delta)
         x, y, dx, dy = self.coords + delta
         self.coords = (x + dx, y + dy)
 
+    def calc_turning_center(self):
+        angle = - self.steering * pi / 180
+        return (- self.wheelbase / 2 / tan(angle), - self.wheelbase / 2)
+
     def turn(self, s_input):
-        s_input = s_input * self.parent.scale
         self.steering = self.steering + s_input
+        if fabs(self.steering) > 1:
+            if self.turning_center is None:
+                tc = Rectangle2D()
+                tc.coords = self.calc_turning_center()
+                tc.size = (0.1, 0.1)
+                self.add_widget(tc)
+                self.turning_center = tc
+            self.turning_center.coords = self.calc_turning_center()
+        elif self.turning_center is not None:
+            self.remove_widget(self.turning_center)
+            self.turning_center = None
 
     def on_heading(self, widget, heading):
         self.heading = self.heading % 360
