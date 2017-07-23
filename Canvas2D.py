@@ -68,6 +68,11 @@ class Widget2D(Widget):
         v = self.matrix * np.transpose(np.matrix(p))
         return (v[0, 0], v[1, 0])
 
+    def transform_vector(self, v):
+        v = v + (0, )
+        v = self.matrix * np.transpose(np.matrix(v))
+        return (v[0, 0], v[1, 0])
+
     def on_coords(self, widget, coords):
         self.update_matrix()
 
@@ -105,7 +110,10 @@ class Points(Widget2D):
     def update_view_points(self):
         self.update_matrix()
         points = zip(self.points[0::2], self.points[1::2])
-        self.view_points = tuple([self.transform_point(p) for p in points])
+        res = []
+        for p in points:
+            res += self.transform_point(p)
+        self.view_points = tuple(res)
 
     def on_coords(self, widget, coords):
         super(Points, self).on_coords(widget, coords)
@@ -121,8 +129,24 @@ class Line(Points):
 
 
 class Rectangle(Line):
+
     pos = ObjectProperty((0, 0))
     size = ObjectProperty((0, 0))
+    view_points = ObjectProperty((0, 0, 0, 0, 0, 0, 0, 0))
 
-    def update_view_points(self):
-        self.update_matrix()
+    def __init__(self, **kwargs):
+        self.update_points()
+        super(Rectangle, self).__init__(**kwargs)
+
+    def update_points(self):
+        p_x, p_y, s_x, s_y = self.pos + self.size
+        self.points = self.pos + (p_x + s_x, p_y) \
+            + (p_x + s_x, p_y + s_y) + (p_x, p_y + s_y)
+        print(self.points)
+        self.update_view_points()
+
+    def on_pos(self, widget, pos):
+        self.update_points()
+
+    def on_size(self, widget, size):
+        self.update_points()

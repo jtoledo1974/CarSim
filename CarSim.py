@@ -5,13 +5,13 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.properties import NumericProperty, ObjectProperty
 
-from Canvas2D import Line
+from Canvas2D import Rectangle
 
 
-class Car(Line):
+class Car(Rectangle):
 
-    points = ObjectProperty((-9, -20, -9, 20, 9, 20, 9, -20, -9, -20))
-    dimensions = ObjectProperty((18, 40))
+    pos = ObjectProperty((-9, -20))
+    size = ObjectProperty((18, 40))
     heading = NumericProperty(0)
     steering = NumericProperty(0.0)
 
@@ -31,7 +31,6 @@ class CarSimApp(App):
 
     def timer(self, *largs):
         self.car.move(.3)
-        print(self.car.points, self.car.view_points)
 
     def on_start(self, **kwargs):
         Clock.schedule_interval(self.timer, 0.02)
