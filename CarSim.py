@@ -1,4 +1,4 @@
-from math import pi, fabs, tan
+from math import pi, fabs, tan, sqrt, acos, radians, degrees
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -20,18 +20,30 @@ class Car(Widget2D):
     steering = NumericProperty(0)
     turning_center = ObjectProperty(None, allownone=True)
 
+    def roll(self, d):
+        if self.turning_center is None:
+            self.move((0, d))
+        elif fabs(d) > 0:
+            R = self.turning_center.coords[0]
+            x = d ** 2 / 4 / R
+            y = d * sqrt(1 - d ** 2 / 4 / R ** 2)
+            self.move((x, y))
+            beta = acos(x / d)
+            alpha = pi - 2 * beta
+            self.heading = self.heading + degrees(alpha)
+
     def move(self, delta):
         delta = transform_vector_2D(self.rotation_matrix, delta)
         x, y, dx, dy = self.coords + delta
         self.coords = (x + dx, y + dy)
 
     def calc_turning_center(self):
-        angle = - self.steering * pi / 180
+        angle = - radians(self.steering)
         return (- self.wheelbase / 2 / tan(angle), - self.wheelbase / 2)
 
     def turn(self, s_input):
         self.steering = self.steering + s_input
-        if fabs(self.steering) > 1:
+        if fabs(self.steering) > 0.1:
             if self.turning_center is None:
 
                 tc = Rectangle2D()
@@ -59,7 +71,7 @@ class Car(Widget2D):
 
     def on_heading(self, widget, heading):
         self.heading = self.heading % 360
-        self.rotation = - self.heading * pi / 180
+        self.rotation = - radians(self.heading)
         self.update()
 
     def on_touch_down(self, touch):
@@ -79,7 +91,7 @@ class Car(Widget2D):
             b = touch.button
             if b == 'left':
                 self.turn(float(vector[0]))
-                self.move((0, vector[1]))
+                self.roll(float(vector[1]))
             elif b == 'right':
                 self.move(vector)
             elif b == 'middle':
@@ -101,8 +113,8 @@ class CarSimApp(App):
         self.root.add_widget(self.car)
         self.car.heading = 270
 
-        #self.root.bind(on_touch_down=self.on_touch_down)
-        #self.root.bind(on_touch_move=self.on_touch_move)
+        # self.root.bind(on_touch_down=self.on_touch_down)
+        # self.root.bind(on_touch_move=self.on_touch_move)
 
         Window.bind(on_keyboard=self.on_keypress)
 
