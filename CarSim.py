@@ -17,9 +17,23 @@ class TurnCircle(Arc2D):
 
 class Car(Widget2D):
 
-    heading = NumericProperty(0)
-    steering = NumericProperty(0)
+    heading = NumericProperty(0.0)
+    steering = NumericProperty(0.0)
     turning_center = ObjectProperty(None, allownone=True)
+    max_steer_angle = NumericProperty(0.0)
+
+    def __init__(self, **kwargs):
+        super(Car, self).__init__(**kwargs)
+        Clock.schedule_once(lambda dt: self.calc_max_steer_angle())
+
+    def calc_max_steer_angle(self):
+        w = Widget2D(coords=(self.curb_turning_circle, -self.wheelbase / 2))
+        self.add_widget(w)
+        p = transform_point_2D(
+            w.this_matrix.I, (-self.track / 2, self.wheelbase))
+        self.max_steer_angle = hypot(*p)
+        print("Max steer angle")
+        print(w.coords, p, self.max_steer_angle)
 
     def roll(self, d):
         if self.turning_center is None:
@@ -43,11 +57,16 @@ class Car(Widget2D):
         x, y, dx, dy = self.coords + delta
         self.coords = (x + dx, y + dy)
 
+    def steer_towards(self, p):
+        """Turn steering wheel naively towards point p in car coordinates"""
+
     def calc_turning_center(self):
         angle = - radians(self.steering)
         return (- self.wheelbase / 2 / tan(angle), - self.wheelbase / 2)
 
     def turn(self, s_input):
+        """Turn steering s_input degrees"""
+
         self.steering = self.steering + s_input
         if fabs(self.steering) > 0.1:
             if self.turning_center is None:
@@ -96,8 +115,9 @@ class Car(Widget2D):
 
         if 'button' in touch.profile:
             b = touch.button
+            tp = False  # Touchpad
         else:
-            tp = True  # Touchpad
+            tp = True
         if tp or (b == 'left'):
             self.turn(float(vector[0]))
             self.roll(float(vector[1]))
