@@ -28,7 +28,7 @@ class Car(Widget2D):
             tc = self.turning_center
             x, y = tc.coords
             R = hypot(x, y)
-            a = - d / (2 * pi * R)
+            a = - d / R
             r = tc.rotation
 
             tc.rotation = a if x > 0 else -a
@@ -92,16 +92,19 @@ class Car(Widget2D):
             return
 
         vector = self.inv_transform_vector(touch.dpos)
+        print(touch.profile)
 
         if 'button' in touch.profile:
             b = touch.button
-            if b == 'left':
-                self.turn(float(vector[0]))
-                self.roll(float(vector[1]))
-            elif b == 'right':
-                self.move(vector)
-            elif b == 'middle':
-                self.heading = self.heading + touch.dpos[0]
+        else:
+            tp = True  # Touchpad
+        if tp or (b == 'left'):
+            self.turn(float(vector[0]))
+            self.roll(float(vector[1]))
+        elif b == 'right':
+            self.move(vector)
+        elif b == 'middle':
+            self.heading = self.heading + touch.dpos[0]
 
         return True
 
