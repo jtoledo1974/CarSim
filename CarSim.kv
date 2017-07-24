@@ -8,13 +8,11 @@
 
 <Wheel@Rectangle2D>:
 	color: (0, 1, 0, 1)
-	angle: 0.0
 	t_width: float(self.parent.tire[:3])
 	aspect: float(self.parent.tire[4:6])
 	wheel: float(self.parent.tire[-2:]) * 25.4
 	t_height: (2 * self.t_width * self.aspect / 100 + self.wheel)
 	size: (self.t_width / 1000, self.t_height / 1000)
-	rotation: - (self.angle % 360) * math.pi / 180
 
 <TurnCircle>:
 	id: turn_circle
@@ -37,11 +35,13 @@
 		size: (self.parent.width, self.parent.length)
 	Wheel:
 		id: lfw
-		angle: self.parent.steering
+		color: (1, 0, 0, 1)
+		rotation: self.parent.left_wheel_rotation
 		coords: (-self.parent.track/2, self.parent.length/2 - self.parent.wheel_to_front)
 	Wheel:
 		id: rfw
-		angle: self.parent.steering
+		color: (1, 0, 0, 1)
+		rotation: self.parent.right_wheel_rotation
 		coords: (self.parent.track/2, self.parent.length/2 - self.parent.wheel_to_front)
 	Wheel:
 		id: lbw

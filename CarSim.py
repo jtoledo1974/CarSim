@@ -1,4 +1,5 @@
-from math import pi, fabs, tan, sqrt, acos, radians, degrees, hypot
+from math import pi, fabs, tan, sqrt, cos, sin,\
+    acos, atan, radians, degrees, hypot
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -11,6 +12,14 @@ from Canvas2D import Canvas2D, Widget2D, \
     Rectangle2D, Arc2D
 
 
+def cot(a):
+    return cos(a) / sin(a)
+
+
+def acot(x):
+    return pi / 2 - atan(x)
+
+
 class TurnCircle(Arc2D):
     circle: ObjectProperty((0, 0, 0))
 
@@ -21,19 +30,19 @@ class Car(Widget2D):
     steering = NumericProperty(0.0)
     turning_center = ObjectProperty(None, allownone=True)
     max_steer_angle = NumericProperty(0.0)
+    left_wheel_rotation = NumericProperty(0.0)
+    right_wheel_rotation = NumericProperty(0.0)
 
     def __init__(self, **kwargs):
         super(Car, self).__init__(**kwargs)
         Clock.schedule_once(lambda dt: self.calc_max_steer_angle())
 
     def calc_max_steer_angle(self):
-        w = Widget2D(coords=(self.curb_turning_circle, -self.wheelbase / 2))
-        self.add_widget(w)
-        p = transform_point_2D(
-            w.this_matrix.I, (-self.track / 2, self.wheelbase))
-        self.max_steer_angle = hypot(*p)
-        print("Max steer angle")
-        print(w.coords, p, self.max_steer_angle)
+        # http://ckw.phys.ncku.edu.tw/public/pub/Notes/GeneralPhysics/Powerpoint/Extra/05/11_0_0_Steering_Theroy.pdf
+        R = (self.curb_turning_circle - self.ids['lfw'].size[0]) / 2
+        t, w = self.track, self.wheelbase
+        a = atan(2 / (2 / sqrt(w ** 2 / (R ** 2 - w ** 2)) - t / w))
+        self.max_steer_angle = degrees(a)
 
     def roll(self, d):
         if self.turning_center is None:
@@ -62,12 +71,28 @@ class Car(Widget2D):
 
     def calc_turning_center(self):
         angle = - radians(self.steering)
-        return (- self.wheelbase / 2 / tan(angle), - self.wheelbase / 2)
+        return (- self.wheelbase / tan(angle), - self.wheelbase / 2)
 
     def turn(self, s_input):
         """Turn steering s_input degrees"""
 
-        self.steering = self.steering + s_input
+        s = self.steering + s_input
+        if s > self.max_steer_angle:
+            s = self.max_steer_angle
+        elif s < -self.max_steer_angle:
+            s = -self.max_steer_angle
+        self.steering = s
+        print(s, hypot(*self.calc_turning_center()))
+
+        t, w = self.track, self.wheelbase
+        try:
+            o = acot(cot(radians(s)) + (t / (2 * w)))
+            i = acot(cot(radians(s)) - (t / (2 * w)))
+        except ZeroDivisionError:
+            o = i = 0
+        self.left_wheel_rotation = - o
+        self.right_wheel_rotation = - i
+
         if fabs(self.steering) > 0.1:
             if self.turning_center is None:
 
@@ -111,7 +136,7 @@ class Car(Widget2D):
             return
 
         vector = self.inv_transform_vector(touch.dpos)
-        print(touch.profile)
+        # print(touch.profile)
 
         if 'button' in touch.profile:
             b = touch.button
@@ -119,7 +144,7 @@ class Car(Widget2D):
         else:
             tp = True
         if tp or (b == 'left'):
-            self.turn(float(vector[0]))
+            self.turn(float(vector[0]) * 8)
             self.roll(float(vector[1]))
         elif b == 'right':
             self.move(vector)
@@ -150,8 +175,8 @@ class CarSimApp(App):
         Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
     def on_keypress(self, window, keycode1, keycode2, text, modifiers):
-        print("%s: on_keypress k1: %s, k2: %s, text: %s, mod: %s" % (
-            "CarSim", keycode1, keycode2, text, modifiers))
+        # print("%s: on_keypress k1: %s, k2: %s, text: %s, mod: %s" % (
+        #     "CarSim", keycode1, keycode2, text, modifiers))
         d, a = 1, 5
         if keycode1 == 273:  # UP
             self.car.roll(d)
