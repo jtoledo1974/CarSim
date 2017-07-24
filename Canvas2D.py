@@ -97,7 +97,8 @@ class Widget2D(Widget):
             ((cos(self.rotation), -sin(self.rotation), 0),
              (sin(self.rotation), cos(self.rotation), 0),
              (0, 0, 1)))
-        self.matrix = self.get_parent_matrix() * t * s * r
+        self.this_matrix = t * s * r
+        self.matrix = self.get_parent_matrix() * self.this_matrix
         self.inv_matrix = self.matrix.I
         for w in self.children:
             try:

@@ -1,4 +1,4 @@
-from math import pi, fabs, tan, sqrt, acos, radians, degrees
+from math import pi, fabs, tan, sqrt, acos, radians, degrees, hypot
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -6,7 +6,8 @@ from kivy.config import Config
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.core.window import Window
 
-from Canvas2D import Canvas2D, Widget2D, transform_vector_2D,\
+from Canvas2D import Canvas2D, Widget2D, \
+    transform_vector_2D, transform_point_2D, \
     Rectangle2D, Arc2D
 
 
@@ -24,13 +25,18 @@ class Car(Widget2D):
         if self.turning_center is None:
             self.move((0, d))
         elif fabs(d) > 0:
-            R = self.turning_center.coords[0]
-            x = d ** 2 / 4 / R
-            y = d * sqrt(1 - d ** 2 / 4 / R ** 2)
-            self.move((x, y))
-            beta = acos(x / d)
-            alpha = pi - 2 * beta
-            self.heading = self.heading + degrees(alpha)
+            tc = self.turning_center
+            x, y = tc.coords
+            R = hypot(x, y)
+            a = - d / (2 * pi * R)
+            r = tc.rotation
+
+            tc.rotation = a if x > 0 else -a
+            p = transform_point_2D(tc.this_matrix, (-x, -y))
+
+            tc.rotation = r
+            self.move(p)
+            self.heading = self.heading - degrees(a if x > 0 else -a)
 
     def move(self, delta):
         delta = transform_vector_2D(self.rotation_matrix, delta)
@@ -123,6 +129,16 @@ class CarSimApp(App):
     def on_keypress(self, window, keycode1, keycode2, text, modifiers):
         print("%s: on_keypress k1: %s, k2: %s, text: %s, mod: %s" % (
             "CarSim", keycode1, keycode2, text, modifiers))
+        d, a = 1, 5
+        if keycode1 == 273:  # UP
+            self.car.roll(d)
+        elif keycode1 == 274:  # DOWN
+            self.car.roll(-d)
+        elif keycode1 == 275:  # RIGHT
+            self.car.turn(5)
+        elif keycode1 == 276:  # LEFT
+            self.car.turn(-5)
+
         return False
 
     def on_touch_down(self, widget, touch):
