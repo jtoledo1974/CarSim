@@ -39,10 +39,18 @@ class Car(Widget2D):
 
     def calc_max_steer_angle(self):
         # http://ckw.phys.ncku.edu.tw/public/pub/Notes/GeneralPhysics/Powerpoint/Extra/05/11_0_0_Steering_Theroy.pdf
-        R = (self.curb_turning_circle - self.ids['lfw'].size[0]) / 2
+        R = (self.curb_turning_circle - self.ids['lfw'].size[0] / 2) / 2
         t, w = self.track, self.wheelbase
         a = atan(2 / (2 / sqrt(w ** 2 / (R ** 2 - w ** 2)) - t / w))
         self.max_steer_angle = degrees(a)
+
+    def check_max_steer_angle(self):
+        """Helper function that verifies that the max_steer_angle is properly found"""
+        self.turn(self.max_steer_angle)
+        m, p = self.turning_center.this_matrix.I, self.ids['lfw'].coords
+        p = transform_point_2D(m, p)
+        print(2 * hypot(*p) + self.ids['lfw'].size[0])
+        self.steering = 0
 
     def roll(self, d):
         if self.turning_center is None:
@@ -82,7 +90,6 @@ class Car(Widget2D):
         elif s < -self.max_steer_angle:
             s = -self.max_steer_angle
         self.steering = s
-        print(s, hypot(*self.calc_turning_center()))
 
         t, w = self.track, self.wheelbase
         try:
@@ -166,6 +173,7 @@ class CarSimApp(App):
         self.car = Car()
         self.root.add_widget(self.car)
         self.car.heading = 270
+        Clock.schedule_once(lambda dt: self.car.check_max_steer_angle())
 
         # self.root.bind(on_touch_down=self.on_touch_down)
         # self.root.bind(on_touch_move=self.on_touch_move)
