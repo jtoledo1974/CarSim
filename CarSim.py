@@ -20,8 +20,8 @@ def acot(x):
     return pi / 2 - atan(x)
 
 
-class TurnCircle(Arc2D):
-    circle: ObjectProperty((0, 0, 0))
+class BackingLines(Widget2D):
+    pass
 
 
 class Car(Widget2D):
@@ -109,11 +109,15 @@ class Car(Widget2D):
                 self.add_widget(tc)
                 self.turning_center = tc
 
-                w = TurnCircle()
+                w = Arc2D()
                 w.coords = coords
                 w.circle = (0, 0, coords[0])
                 self.add_widget(w)
                 self.turn_circle = w
+
+                # w = BackingLines()
+                # self.add_widget(w)
+                # self.backing_lines = w
 
             coords = self.calc_turning_center()
             self.turning_center.coords = coords
