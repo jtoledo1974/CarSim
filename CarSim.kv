@@ -36,12 +36,14 @@
 	wheel_to_front: .787
 	tire: "175/65R14"
 	curb_turning_circle: 10
+	source: None
 
 	Rectangle2D:
 		id: body
-		color: (1, 1, 0, 1)
+		color: (1, 1, 1, 1)
 		centered: True
 		size: (self.parent.width, self.parent.length)
+		source: self.parent.source
 	Wheel:
 		id: lfw
 		color: (1, 0, 0, 1)
@@ -61,6 +63,15 @@
 
 <Peugeot1007@Car>:
 	id: Peugeot1007
+	length: 3.731
+	# 1.922 publicado
+	width: 2.04  # 2.04 con los retrovisores, aparentemente, según un gráfico-
+	wheelbase: 2.315
+	track: 1.437
+	wheel_to_front: .787
+	tire: "175/65R14"
+	curb_turning_circle: 10
+	source: "peugeot-1007-top.png"
 
 <Twizy@Car>:
 	id: Twizy
@@ -71,13 +82,16 @@
 	wheel_to_front: 0.313
 	tire: "125/80R13"
 	curb_turning_circle: 7
+	source: "twizy.png"
 
 <Model3@Car>:
 	id: Model3
 	length: 4.69
 	width: 1.88
 	wheelbase: 2.87
-	track: 
+	track: 1.46
+	tire: "245/45R19"
+	curb_turning_circle: 11  # Estimado
 
 <Plaza1007@Widget2D>:
 	Line2D:
@@ -93,5 +107,7 @@ Canvas2D:
 	Plaza1007:
 		coords: (2.55, 0)
 	Peugeot1007:
-		coords: (4,2)
+		coords: (4, 2.3)
+	Model3:
+		coords: (6.55, 2.3)
 

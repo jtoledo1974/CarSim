@@ -4,6 +4,7 @@ from math import pi, fabs, tan, sqrt, cos, sin,\
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import Config
+from kivy.factory import Factory
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.core.window import Window
 
@@ -174,13 +175,13 @@ class CarSimApp(App):
 
     def on_start(self, **kwargs):
         Clock.schedule_interval(self.timer, 1)
-        self.car = Car()
+        self.car = Factory.Peugeot1007()
         self.root.add_widget(self.car)
         self.car.heading = 270
         Clock.schedule_once(lambda dt: self.car.check_max_steer_angle())
 
-        # self.root.bind(on_touch_down=self.on_touch_down)
-        # self.root.bind(on_touch_move=self.on_touch_move)
+        self.root.bind(on_touch_down=self.on_touch_down)
+        self.root.bind(on_touch_move=self.on_touch_move)
 
         Window.bind(on_keyboard=self.on_keypress)
 
@@ -209,19 +210,19 @@ class CarSimApp(App):
                 self.root.scale *= 1.1
             elif touch.button == 'scrollup':
                 self.root.scale *= 1 / 1.1
-            if touch.button == 'left':
-                touch.grab(self.root)
-                return True
+            # if touch.button == 'left':
+            #     touch.grab(self.root)
+            #     return True
 
     def on_touch_move(self, widget, touch):
         super(Canvas2D, self.root).on_touch_move(touch)
         if touch.grab_current is not self.root:
             return
-        print(widget.coords)
-        x, y, dx, dy = list(self.root.coords) + list(touch.coords)
-        self.root.coords = (x + dx, y + dy)
-        print(widget.coords)
-        self.root.update()
+        # print(widget.coords)
+        # x, y, dx, dy = list(self.root.coords) + list(touch.coords)
+        # self.root.coords = (x + dx, y + dy)
+        # print(widget.coords)
+        # self.root.update()
 
 
 if __name__ == '__main__':
