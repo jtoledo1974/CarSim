@@ -40,15 +40,21 @@ root = Builder.load_string("""
 
 
 <Car@RelativeLayout>:
+    canvas:
+        Rotate:
+            angle: 25
+    R:
+    Label:
+        text: str(self.pos) + " " + str(self.size)
 
 
-
-Widget:
+FloatLayout:
     Label:
         canvas:
             PushMatrix:
             Translate:
                 x: 100
+            PopMatrix:
         text: "hola"
     Car:
 """)
