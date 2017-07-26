@@ -18,13 +18,14 @@
 	id: turn_circle
 
 <BackingLines>
-	center: self.parent.turning_circle.coords
-	r1: center[0] - self.parent.width
-	r2: center[0] + self.parent.width
+	center: (0, 0)
+	parent_width: 0
+	r1: self.center[0] - self.parent_width/2
+	r2: self.center[0] + self.parent_width/2
 	Arc2D:
-		circle: (*center, r1)
+		circle: (*self.parent.center, self.parent.r1)
 	Arc2D
-		circle: (*center, r2)
+		circle: (*self.parent.center, self.parent.r2)
 
 <Car>:
 	coords: (5, 5)

@@ -82,6 +82,36 @@ class Car(Widget2D):
         angle = - radians(self.steering)
         return (- self.wheelbase / tan(angle), - self.wheelbase / 2)
 
+    def add_turning_lines(self):
+        print("Add turning")
+        tc = Rectangle2D()
+        tc.coords = self.calc_turning_center()
+        tc.size = (0.1, 0.1)
+        self.add_widget(tc)
+        self.turning_center = tc
+
+        bl = BackingLines()
+        self.add_widget(bl)
+
+        def set_center(tc, coords):
+            "Print set_center"
+            bl.center = coords
+            bl.parent_width = self.width
+
+        tc.bind(coords=set_center)
+        bl.callback = set_center
+
+        self.backing_lines = bl
+
+    def remove_turning_lines(self):
+
+        self.turning_center.unbind(coords=self.backing_lines.callback)
+        self.remove_widget(self.backing_lines)
+        del(self.backing_lines)
+
+        self.remove_widget(self.turning_center)
+        self.turning_center = None
+
     def turn(self, s_input):
         """Turn steering s_input degrees"""
 
@@ -103,33 +133,10 @@ class Car(Widget2D):
 
         if fabs(self.steering) > 0.1:
             if self.turning_center is None:
-
-                tc = Rectangle2D()
-                coords = tc.coords = self.calc_turning_center()
-                tc.size = (0.1, 0.1)
-                self.add_widget(tc)
-                self.turning_center = tc
-
-                w = Arc2D()
-                w.coords = coords
-                w.circle = (0, 0, coords[0])
-                self.add_widget(w)
-                self.turn_circle = w
-
-                # w = BackingLines()
-                # self.add_widget(w)
-                # self.backing_lines = w
-
-            coords = self.calc_turning_center()
-            self.turning_center.coords = coords
-            self.turn_circle.coords = coords
-            self.turn_circle.circle = (0, 0, coords[0])
-
+                self.add_turning_lines()
+            self.turning_center.coords = self.calc_turning_center()
         elif self.turning_center is not None:
-            self.remove_widget(self.turn_circle)
-            del(self.turn_circle)
-            self.remove_widget(self.turning_center)
-            self.turning_center = None
+            self.remove_turning_lines()
 
     def on_heading(self, widget, heading):
         self.heading = self.heading % 360
