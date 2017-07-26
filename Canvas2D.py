@@ -10,8 +10,6 @@ from kivy.lang.builder import Builder
 
 IDENT_3 = np.matrix(np.identity(3))
 
-VertexInstruction()
-
 Builder.load_string("""
 <Line2D>:
     canvas:

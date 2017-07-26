@@ -148,6 +148,7 @@ class Car(Widget2D):
             return
 
         vector = self.inv_transform_vector(touch.dpos)
+
         # print(touch.profile)
 
         if 'button' in touch.profile:
@@ -156,7 +157,9 @@ class Car(Widget2D):
         else:
             tp = True
         if tp or (b == 'left'):
-            self.turn(float(vector[0]) * 8)
+            a = hypot(*self.transform_vector((vector[0], 0))) ** 2 / 30
+            a = a if vector[0] > 0 else -a
+            self.turn(a)
             self.roll(float(vector[1]))
         elif b == 'right':
             self.move(vector)
@@ -188,17 +191,30 @@ class CarSimApp(App):
         Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
     def on_keypress(self, window, keycode1, keycode2, text, modifiers):
-        # print("%s: on_keypress k1: %s, k2: %s, text: %s, mod: %s" % (
-        #     "CarSim", keycode1, keycode2, text, modifiers))
+        print("%s: on_keypress k1: %s, k2: %s, text: %s, mod: %s" % (
+            "CarSim", keycode1, keycode2, text, modifiers))
         d, a = 1, 5
+        x, y, pan = *self.root.coords, self.root.width / 10
         if keycode1 == 273:  # UP
             self.car.roll(d)
         elif keycode1 == 274:  # DOWN
             self.car.roll(-d)
         elif keycode1 == 275:  # RIGHT
-            self.car.turn(5)
+            self.car.turn(a)
         elif keycode1 == 276:  # LEFT
-            self.car.turn(-5)
+            self.car.turn(-a)
+        elif text == "+":
+            self.root.scale = self.root.scale * 1.1
+        elif text == "-":
+            self.root.scale = self.root.scale / 1.1
+        elif text == "a":
+            self.root.coords = (x + pan, y)
+        elif text == "d":
+            self.root.coords = (x - pan, y)
+        elif text == "s":
+            self.root.coords = (x, y + pan)
+        elif text == "w":
+            self.root.coords = (x, y - pan)
 
         return False
 
