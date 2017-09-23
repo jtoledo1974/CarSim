@@ -94,19 +94,24 @@
 	tire: "245/45R19"
 	curb_turning_circle: 11  # Estimado
 
+<Garaje@Rectangle2D>:
+	size: (21.64, 30.65)
+	source: "Garaje.png"
+
 <Plaza1007@Widget2D>:
 	Line2D:
-		points: (0, 0, 2.55, 0, 2.55, 5.655, 2.405, 5.655, 2.405, 5.8)
+		points: (0, 0, 2.55, 0, 2.55, 5.87, 0, 5.87, 0, 0)
 
 Canvas2D:
 	scale: 40
 	coords: (100, 100)
+	Garaje:
+		coords: (21.64/2, 30.65/2)
+	Plaza1007:
+		coords: (6.81, 0)
 	Axis:
 	Twizy:
 		coords: (8, 5)
-	Plaza1007:
-	Plaza1007:
-		coords: (2.55, 0)
 	Peugeot1007:
 		coords: (4, 2.3)
 	Model3:
