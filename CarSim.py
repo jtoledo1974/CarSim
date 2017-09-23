@@ -96,7 +96,19 @@ class Car(Widget2D):
         def set_center(tc, coords):
             "Print set_center"
             bl.center = coords
-            bl.parent_width = self.width
+            # Backing line near
+            bl.r1 = hypot(coords[0] - self.width / 2,
+                          self.length - self.wheelbase - self.wheel_to_front)
+            # Backing line far
+            bl.r2 = hypot(coords[0] + self.width / 2,
+                          self.length - self.wheelbase - self.wheel_to_front)
+            # Over when backing
+            bl.r3 = hypot(fabs(coords[0]) + self.width / 2,
+                          self.wheelbase + self.wheel_to_front)
+            # Over when forwards
+            bl.r4 = fabs(coords[0]) - self.width / 2
+            # Max turn when backing
+            # bl.r5 = 
 
         tc.bind(coords=set_center)
         bl.callback = set_center
