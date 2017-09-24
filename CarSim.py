@@ -83,7 +83,6 @@ class Car(Widget2D):
         return (- self.wheelbase / tan(angle), - self.wheelbase / 2)
 
     def add_turning_lines(self):
-        print("Add turning")
         tc = Rectangle2D()
         try:
             tc.coords = self.calc_turning_center()
@@ -120,7 +119,10 @@ class Car(Widget2D):
 
     def remove_turning_lines(self):
 
-        self.turning_center.unbind(coords=self.backing_lines.callback)
+        try:
+            self.turning_center.unbind(coords=self.backing_lines.callback)
+        except AttributeError:
+            return
         self.remove_widget(self.backing_lines)
         del(self.backing_lines)
 
@@ -194,20 +196,13 @@ class CarSimApp(App):
 
     car = ObjectProperty()
 
-    def timer(self, *largs):
-        pass
-
     def on_start(self, **kwargs):
-        Clock.schedule_interval(self.timer, 1)
-        self.car = Factory.Peugeot1007()
-        self.root.add_widget(self.car)
-        self.car.heading = 270
-        Clock.schedule_once(lambda dt: self.car.check_max_steer_angle())
-
         self.root.bind(on_touch_down=self.on_touch_down)
         self.root.bind(on_touch_move=self.on_touch_move)
 
         Window.bind(on_keyboard=self.on_keypress)
+
+        self.car = None
 
         Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
@@ -228,7 +223,11 @@ class CarSimApp(App):
             self.root.scale = self.root.scale * 1.1
         elif text == "-":
             self.root.scale = self.root.scale / 1.1
-        elif text == "a":
+
+        if not self.car:
+            return False
+
+        if text == "a":
             self.car.turn(-a)
         elif text == "d":
             self.car.turn(a)
@@ -252,7 +251,10 @@ class CarSimApp(App):
 
     def on_post_touch_down(self, touch):
         if hasattr(touch, "car"):
-            self.car.remove_turning_lines()
+            try:
+                self.car.remove_turning_lines()
+            except AttributeError:
+                pass
             self.car = touch.car
             self.car.add_turning_lines()
 
