@@ -85,7 +85,10 @@ class Car(Widget2D):
     def add_turning_lines(self):
         print("Add turning")
         tc = Rectangle2D()
-        tc.coords = self.calc_turning_center()
+        try:
+            tc.coords = self.calc_turning_center()
+        except ZeroDivisionError:
+            return
         tc.size = (0.1, 0.1)
         self.add_widget(tc)
         self.turning_center = tc
@@ -214,25 +217,25 @@ class CarSimApp(App):
         d, a = 1, 5
         x, y, pan = *self.root.coords, self.root.width / 10
         if keycode1 == 273:  # UP
-            self.car.roll(d)
+            self.root.coords = (x, y - pan)
         elif keycode1 == 274:  # DOWN
-            self.car.roll(-d)
+            self.root.coords = (x, y + pan)
         elif keycode1 == 275:  # RIGHT
-            self.car.turn(a)
+            self.root.coords = (x - pan, y)
         elif keycode1 == 276:  # LEFT
-            self.car.turn(-a)
+            self.root.coords = (x + pan, y)
         elif text == "+":
             self.root.scale = self.root.scale * 1.1
         elif text == "-":
             self.root.scale = self.root.scale / 1.1
         elif text == "a":
-            self.root.coords = (x + pan, y)
+            self.car.turn(-a)
         elif text == "d":
-            self.root.coords = (x - pan, y)
+            self.car.turn(a)
         elif text == "s":
-            self.root.coords = (x, y + pan)
+            self.car.roll(-d)
         elif text == "w":
-            self.root.coords = (x, y - pan)
+            self.car.roll(d)
 
         return False
 
@@ -248,8 +251,10 @@ class CarSimApp(App):
         Clock.schedule_once(lambda dt: self.on_post_touch_down(touch))
 
     def on_post_touch_down(self, touch):
-        if hasattr(touch, "car") and touch.is_double_tap:
+        if hasattr(touch, "car"):
+            self.car.remove_turning_lines()
             self.car = touch.car
+            self.car.add_turning_lines()
 
     def on_touch_move(self, widget, touch):
         Clock.schedule_once(lambda dt: self.on_post_touch_move(touch))
