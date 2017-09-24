@@ -156,10 +156,9 @@ class Car(Widget2D):
         self.update()
 
     def on_touch_down(self, touch):
-        print("Car touch")
-        print(type(self))
         if (self.ids['body'].collide_point(*touch.pos)):
             touch.grab(self)
+            touch.car = self
             return True
 
     def on_touch_move(self, touch):
@@ -238,26 +237,29 @@ class CarSimApp(App):
         return False
 
     def on_touch_down(self, widget, touch):
-        super(Canvas2D, self.root).on_touch_down(touch)
-        print("Canvas touch")
         if 'button' in touch.profile:
             if touch.button == 'scrolldown':
                 self.root.scale *= 1.1
             elif touch.button == 'scrollup':
                 self.root.scale *= 1 / 1.1
-            # if touch.button == 'left':
-            #     touch.grab(self.root)
-            #     return True
+            if touch.button == 'left':
+                touch.grab(self.root)
+
+        Clock.schedule_once(lambda dt: self.on_post_touch_down(touch))
+
+    def on_post_touch_down(self, touch):
+        if hasattr(touch, "car") and touch.is_double_tap:
+            self.car = touch.car
 
     def on_touch_move(self, widget, touch):
-        super(Canvas2D, self.root).on_touch_move(touch)
-        if touch.grab_current is not self.root:
+        Clock.schedule_once(lambda dt: self.on_post_touch_move(touch))
+
+    def on_post_touch_move(self, touch):
+        if hasattr(touch, "car"):
             return
-        # print(widget.coords)
-        # x, y, dx, dy = list(self.root.coords) + list(touch.coords)
-        # self.root.coords = (x + dx, y + dy)
-        # print(widget.coords)
-        # self.root.update()
+        x, y, dx, dy = list(self.root.coords) + list(touch.dpos)
+        self.root.coords = (x + dx, y + dy)
+        self.root.update()
 
 
 if __name__ == '__main__':
