@@ -1,0 +1,81 @@
+[tool.pylint.MAIN]
+load-plugins = [
+    "pylint.extensions.code_style",
+    "pylint.extensions.typing",
+]
+
+[tool.pylint.BASIC]
+ignored-modules = [
+    # Deals with cython declarations and cimports
+    "kivy.properties"
+]
+good-names = [
+    "_",
+    "x", "y", "dx", "dy",
+    "i", "tc",
+    "r1", "r2", "r3", "r4",
+]
+
+[tool.pylint."MESSAGES CONTROL"]
+# Reasons disabled:
+# format - handled by black
+# abstract-class-little-used - prevents from setting right foundation
+# unused-argument - generic callbacks and setup methods create a lot of warnings
+# too-many-* - are not enforced for the sake of readability
+# too-few-* - same as too-many-*
+# abstract-method - with intro of async there are always methods missing
+# inconsistent-return-statements - doesn't handle raise
+# too-many-ancestors - it's too strict.
+# wrong-import-order - isort guards this
+# consider-using-f-string - str.format sometimes more readable
+# ---
+# Enable once current issues are fixed:
+# consider-using-namedtuple-or-dataclass (Pylint CodeStyle extension)
+# consider-using-assignment-expr (Pylint CodeStyle extension)
+
+# consider-merging-isinstance - cython isintance doesn't support it
+# no-name-in-module - pylint can't deal with cython extension types
+# no-value-for-parameter - pylint can't deal with cython extension types
+# missing-module-docstring - flakes8 guards this
+# missing-class-docstring - flakes8 guards this
+# missing-function-docstring - flakes8 guards this
+
+disable = [
+    "format",
+    # "abstract-method",
+    # "inconsistent-return-statements",
+    # "too-few-public-methods",
+    # "too-many-ancestors",
+    "too-many-arguments",
+    # "too-many-branches",
+    # "too-many-instance-attributes",
+    # "too-many-locals",
+    # "too-many-public-methods",
+    # "too-many-return-statements",
+    # "too-many-statements",
+    # "too-many-boolean-expressions",
+    # "unused-argument",
+    # "wrong-import-order",
+    # "consider-using-f-string",
+    # "consider-using-namedtuple-or-dataclass",
+    # "consider-using-assignment-expr",
+    "consider-merging-isinstance",
+    "no-name-in-module",
+    "no-value-for-parameter",
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+]
+enable = [
+    #"useless-suppression",  # temporarily every now and then to clean them up
+    "use-symbolic-message-instead",
+]
+
+
+[tool.pylint.TYPING]
+runtime-typing = false
+
+[tool.pylint.TYPECHECK]
+ignored-classes = [
+    "Car", "Rectangle2D",  # for attrs
+]
