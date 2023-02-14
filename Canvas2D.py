@@ -10,7 +10,8 @@ from kivy.lang.builder import Builder
 
 IDENT_3 = np.matrix(np.identity(3))
 
-Builder.load_string("""
+Builder.load_string(
+    """
 <Line2D>:
     canvas:
         Color:
@@ -33,7 +34,8 @@ Builder.load_string("""
             points: self.view_points
             source: self.source
 
-""")
+"""
+)
 
 
 def point_inside_polygon(x, y, poly):
@@ -56,13 +58,13 @@ def point_inside_polygon(x, y, poly):
 
 
 def transform_point_2D(matrix, p):
-    p = p + (1, )
+    p = p + (1,)
     v = matrix * np.transpose(np.matrix(p))
     return (v[0, 0], v[1, 0])
 
 
 def transform_vector_2D(matrix, v):
-    v = v + (0, )
+    v = v + (0,)
     v = matrix * np.transpose(np.matrix(v))
     return (v[0, 0], v[1, 0])
 
@@ -88,17 +90,26 @@ class Widget2D(Widget):
 
     def update_matrix(self):
         self.translation_matrix = t = np.matrix(
-            ((1, 0, self.coords[0]),
-             (0, 1, self.coords[1]),
-             (0, 0, 1)))
+            (
+                (1, 0, self.coords[0]),
+                (0, 1, self.coords[1]),
+                (0, 0, 1),
+            )
+        )
         self.scale_matrix = s = np.matrix(
-            ((self.scale_x, 0, 0),
-             (0, self.scale_y, 0),
-             (0, 0, 1)))
+            (
+                (self.scale_x, 0, 0),
+                (0, self.scale_y, 0),
+                (0, 0, 1),
+            )
+        )
         self.rotation_matrix = r = np.matrix(
-            ((cos(self.rotation), -sin(self.rotation), 0),
-             (sin(self.rotation), cos(self.rotation), 0),
-             (0, 0, 1)))
+            (
+                (cos(self.rotation), -sin(self.rotation), 0),
+                (sin(self.rotation), cos(self.rotation), 0),
+                (0, 0, 1),
+            )
+        )
         self.this_matrix = t * s * r
         self.matrix = self.get_parent_matrix() * self.this_matrix
         self.inv_matrix = self.matrix.I
@@ -112,22 +123,22 @@ class Widget2D(Widget):
         self.update_matrix()
 
     def transform_point(self, p):
-        p = p + (1, )
+        p = p + (1,)
         v = self.matrix * np.transpose(np.matrix(p))
         return (v[0, 0], v[1, 0])
 
     def transform_vector(self, v):
-        v = v + (0, )
+        v = v + (0,)
         v = self.matrix * np.transpose(np.matrix(v))
         return (v[0, 0], v[1, 0])
 
     def inv_transform_point(self, v):
-        v = v + (1, )
+        v = v + (1,)
         p = self.inv_matrix * np.transpose(np.matrix(v))
         return (p[0, 0], p[1, 0])
 
     def inv_transform_vector(self, v):
-        v = v + (0, )
+        v = v + (0,)
         v = self.inv_matrix * np.transpose(np.matrix(v))
         return (v[0, 0], v[1, 0])
 
@@ -228,8 +239,9 @@ class Rectangle2D(Line2D):
 
     def update_points(self):
         p_x, p_y, s_x, s_y = self.pos + self.size
-        self.points = self.pos + (p_x + s_x, p_y) \
-            + (p_x + s_x, p_y + s_y) + (p_x, p_y + s_y)
+        self.points = (
+            self.pos + (p_x + s_x, p_y) + (p_x + s_x, p_y + s_y) + (p_x, p_y + s_y)
+        )
         self.update_view_points()
 
     def on_pos(self, widget, pos):

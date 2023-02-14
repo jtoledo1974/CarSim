@@ -1,5 +1,4 @@
-from math import pi, fabs, tan, sqrt, cos, sin,\
-    acos, atan, radians, degrees, hypot
+from math import pi, fabs, tan, sqrt, cos, sin, acos, atan, radians, degrees, hypot
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -8,9 +7,14 @@ from kivy.factory import Factory
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.core.window import Window
 
-from Canvas2D import Canvas2D, Widget2D, \
-    transform_vector_2D, transform_point_2D, \
-    Rectangle2D, Arc2D
+from Canvas2D import (
+    Canvas2D,
+    Widget2D,
+    transform_vector_2D,
+    transform_point_2D,
+    Rectangle2D,
+    Arc2D,
+)
 
 
 def cot(a):
@@ -40,17 +44,17 @@ class Car(Widget2D):
 
     def calc_max_steer_angle(self):
         # http://ckw.phys.ncku.edu.tw/public/pub/Notes/GeneralPhysics/Powerpoint/Extra/05/11_0_0_Steering_Theroy.pdf
-        R = (self.curb_turning_circle - self.ids['lfw'].size[0] / 2) / 2
+        R = (self.curb_turning_circle - self.ids["lfw"].size[0] / 2) / 2
         t, w = self.track, self.wheelbase
-        a = atan(2 / (2 / sqrt(w ** 2 / (R ** 2 - w ** 2)) - t / w))
+        a = atan(2 / (2 / sqrt(w**2 / (R**2 - w**2)) - t / w))
         self.max_steer_angle = degrees(a)
 
     def check_max_steer_angle(self):
         """Helper function that verifies that the max_steer_angle is properly found"""
         self.turn(self.max_steer_angle)
-        m, p = self.turning_center.this_matrix.I, self.ids['lfw'].coords
+        m, p = self.turning_center.this_matrix.I, self.ids["lfw"].coords
         p = transform_point_2D(m, p)
-        print(2 * hypot(*p) + self.ids['lfw'].size[0])
+        print(2 * hypot(*p) + self.ids["lfw"].size[0])
         self.steering = 0
 
     def roll(self, d):
@@ -60,7 +64,7 @@ class Car(Widget2D):
             tc = self.turning_center
             x, y = tc.coords
             R = hypot(x, y)
-            a = - d / R
+            a = -d / R
             r = tc.rotation
 
             tc.rotation = a if x > 0 else -a
@@ -79,8 +83,8 @@ class Car(Widget2D):
         """Turn steering wheel naively towards point p in car coordinates"""
 
     def calc_turning_center(self):
-        angle = - radians(self.steering)
-        return (- self.wheelbase / tan(angle), - self.wheelbase / 2)
+        angle = -radians(self.steering)
+        return (-self.wheelbase / tan(angle), -self.wheelbase / 2)
 
     def add_turning_lines(self):
         tc = Rectangle2D()
@@ -99,18 +103,23 @@ class Car(Widget2D):
             "Print set_center"
             bl.center = coords
             # Backing line near
-            bl.r1 = hypot(coords[0] - self.width / 2,
-                          self.length - self.wheelbase - self.wheel_to_front)
+            bl.r1 = hypot(
+                coords[0] - self.width / 2,
+                self.length - self.wheelbase - self.wheel_to_front,
+            )
             # Backing line far
-            bl.r2 = hypot(coords[0] + self.width / 2,
-                          self.length - self.wheelbase - self.wheel_to_front)
+            bl.r2 = hypot(
+                coords[0] + self.width / 2,
+                self.length - self.wheelbase - self.wheel_to_front,
+            )
             # Over when backing
-            bl.r3 = hypot(fabs(coords[0]) + self.width / 2,
-                          self.wheelbase + self.wheel_to_front)
+            bl.r3 = hypot(
+                fabs(coords[0]) + self.width / 2, self.wheelbase + self.wheel_to_front
+            )
             # Over when forwards
             bl.r4 = fabs(coords[0]) - self.width / 2
             # Max turn when backing
-            # bl.r5 = 
+            # bl.r5 =
 
         tc.bind(coords=set_center)
         bl.callback = set_center
@@ -124,7 +133,7 @@ class Car(Widget2D):
         except AttributeError:
             return
         self.remove_widget(self.backing_lines)
-        del(self.backing_lines)
+        del self.backing_lines
 
         self.remove_widget(self.turning_center)
         self.turning_center = None
@@ -145,8 +154,8 @@ class Car(Widget2D):
             i = acot(cot(radians(s)) - (t / (2 * w)))
         except ZeroDivisionError:
             o = i = 0
-        self.left_wheel_rotation = - o
-        self.right_wheel_rotation = - i
+        self.left_wheel_rotation = -o
+        self.right_wheel_rotation = -i
 
         if fabs(self.steering) > 0.1:
             if self.turning_center is None:
@@ -157,11 +166,11 @@ class Car(Widget2D):
 
     def on_heading(self, widget, heading):
         self.heading = self.heading % 360
-        self.rotation = - radians(self.heading)
+        self.rotation = -radians(self.heading)
         self.update()
 
     def on_touch_down(self, touch):
-        if (self.ids['body'].collide_point(*touch.pos)):
+        if self.ids["body"].collide_point(*touch.pos):
             touch.grab(self)
             touch.car = self
             return True
@@ -174,19 +183,19 @@ class Car(Widget2D):
 
         # print(touch.profile)
 
-        if 'button' in touch.profile:
+        if "button" in touch.profile:
             b = touch.button
             tp = False  # Touchpad
         else:
             tp = True
-        if tp or (b == 'left'):
+        if tp or (b == "left"):
             a = hypot(*self.transform_vector((vector[0], 0))) ** 2 / 30
             a = a if vector[0] > 0 else -a
             self.turn(a)
             self.roll(float(vector[1]))
-        elif b == 'right':
+        elif b == "right":
             self.move(vector)
-        elif b == 'middle':
+        elif b == "middle":
             self.heading = self.heading + touch.dpos[0]
 
         return True
@@ -204,11 +213,13 @@ class CarSimApp(App):
 
         self.car = None
 
-        Config.set('input', 'mouse', 'mouse,disable_multitouch')
+        Config.set("input", "mouse", "mouse,disable_multitouch")
 
     def on_keypress(self, window, keycode1, keycode2, text, modifiers):
-        print("%s: on_keypress k1: %s, k2: %s, text: %s, mod: %s" % (
-            "CarSim", keycode1, keycode2, text, modifiers))
+        print(
+            "%s: on_keypress k1: %s, k2: %s, text: %s, mod: %s"
+            % ("CarSim", keycode1, keycode2, text, modifiers)
+        )
         d, a = 1, 5
         x, y, pan = *self.root.coords, self.root.width / 10
         if keycode1 == 273:  # UP
@@ -239,12 +250,12 @@ class CarSimApp(App):
         return False
 
     def on_touch_down(self, widget, touch):
-        if 'button' in touch.profile:
-            if touch.button == 'scrolldown':
+        if "button" in touch.profile:
+            if touch.button == "scrolldown":
                 self.root.scale *= 1.1
-            elif touch.button == 'scrollup':
+            elif touch.button == "scrollup":
                 self.root.scale *= 1 / 1.1
-            if touch.button == 'left':
+            if touch.button == "left":
                 touch.grab(self.root)
 
         Clock.schedule_once(lambda dt: self.on_post_touch_down(touch))
@@ -269,5 +280,5 @@ class CarSimApp(App):
         self.root.update()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     CarSimApp().run()
