@@ -12,7 +12,9 @@ $ python CarSim.py
 ```
 
 ## Usage
-Drag with the mouse to move the car. Draggin logitudinally will move the
+Click on a car to select it.
+
+Drag with the mouse to move the car. Dragging logitudinally will move the
 car, whereas dragging laterally will turn the wheels.
 Dragging with the middle mouse button will rotate the car in place.
 Dragging with the right mouse button will move the car.
