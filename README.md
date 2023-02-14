@@ -17,4 +17,6 @@ car, whereas dragging laterally will turn the wheels.
 Dragging with the middle mouse button will rotate the car in place.
 Dragging with the right mouse button will move the car.
 
-Alternatively, A, S, D, and W can be used to move the car
+Alternatively, A, S, D, and W can be used to move the car.
+
+![screenshot](screenshot.png)
