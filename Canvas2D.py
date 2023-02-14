@@ -1,4 +1,5 @@
 from math import sin, cos
+
 import numpy as np
 
 from kivy.uix.widget import Widget
@@ -7,6 +8,7 @@ from kivy.lang.builder import Builder
 
 # Using this for refence on transformations
 # https://www.gamedev.net/articles/programming/math-and-physics/making-a-game-engine-transformations-r3566/
+
 
 IDENT_3 = np.matrix(np.identity(3))
 
@@ -39,12 +41,12 @@ Builder.load_string(
 
 
 def point_inside_polygon(x, y, poly):
-    n = len(poly)
+    n_points = len(poly)
     inside = False
 
     p1x, p1y = poly[0]
-    for i in range(n + 1):
-        p2x, p2y = poly[i % n]
+    for i in range(n_points + 1):
+        p2x, p2y = poly[i % n_points]
         if y > min(p1y, p2y):
             if y <= max(p1y, p2y):
                 if x <= max(p1x, p2x):
@@ -57,16 +59,16 @@ def point_inside_polygon(x, y, poly):
     return inside
 
 
-def transform_point_2D(matrix, p):
-    p = p + (1,)
-    v = matrix * np.transpose(np.matrix(p))
-    return (v[0, 0], v[1, 0])
+def transform_point_2d(matrix, pnt):
+    pnt = pnt + (1,)
+    vector = matrix * np.transpose(np.matrix(pnt))
+    return (vector[0, 0], vector[1, 0])
 
 
-def transform_vector_2D(matrix, v):
-    v = v + (0,)
-    v = matrix * np.transpose(np.matrix(v))
-    return (v[0, 0], v[1, 0])
+def transform_vector_2d(matrix, vector):
+    vector = vector + (0,)
+    vector = matrix * np.transpose(np.matrix(vector))
+    return (vector[0, 0], vector[1, 0])
 
 
 class Widget2D(Widget):
@@ -89,72 +91,72 @@ class Widget2D(Widget):
             return IDENT_3
 
     def update_matrix(self):
-        self.translation_matrix = t = np.matrix(
+        self.translation_matrix = tltn = np.matrix(
             (
                 (1, 0, self.coords[0]),
                 (0, 1, self.coords[1]),
                 (0, 0, 1),
             )
         )
-        self.scale_matrix = s = np.matrix(
+        self.scale_matrix = scl = np.matrix(
             (
                 (self.scale_x, 0, 0),
                 (0, self.scale_y, 0),
                 (0, 0, 1),
             )
         )
-        self.rotation_matrix = r = np.matrix(
+        self.rotation_matrix = rot = np.matrix(
             (
                 (cos(self.rotation), -sin(self.rotation), 0),
                 (sin(self.rotation), cos(self.rotation), 0),
                 (0, 0, 1),
             )
         )
-        self.this_matrix = t * s * r
+        self.this_matrix = tltn * scl * rot
         self.matrix = self.get_parent_matrix() * self.this_matrix
         self.inv_matrix = self.matrix.I
-        for w in self.children:
+        for widget in self.children:
             try:
-                w.update()
+                widget.update()
             except AttributeError:  # Other standard widgets
                 pass
 
     def update(self):
         self.update_matrix()
 
-    def transform_point(self, p):
-        p = p + (1,)
-        v = self.matrix * np.transpose(np.matrix(p))
-        return (v[0, 0], v[1, 0])
+    def transform_point(self, pnt):
+        pnt = pnt + (1,)
+        vector = self.matrix * np.transpose(np.matrix(pnt))
+        return (vector[0, 0], vector[1, 0])
 
-    def transform_vector(self, v):
-        v = v + (0,)
-        v = self.matrix * np.transpose(np.matrix(v))
-        return (v[0, 0], v[1, 0])
+    def transform_vector(self, vector):
+        vector = vector + (0,)
+        vector = self.matrix * np.transpose(np.matrix(vector))
+        return (vector[0, 0], vector[1, 0])
 
-    def inv_transform_point(self, v):
-        v = v + (1,)
-        p = self.inv_matrix * np.transpose(np.matrix(v))
-        return (p[0, 0], p[1, 0])
+    def inv_transform_point(self, vector):
+        vector = vector + (1,)
+        pnt = self.inv_matrix * np.transpose(np.matrix(vector))
+        return (pnt[0, 0], pnt[1, 0])
 
-    def inv_transform_vector(self, v):
-        v = v + (0,)
-        v = self.inv_matrix * np.transpose(np.matrix(v))
-        return (v[0, 0], v[1, 0])
+    def inv_transform_vector(self, vector):
+        vector = vector + (0,)
+        vector = self.inv_matrix * np.transpose(np.matrix(vector))
+        return (vector[0, 0], vector[1, 0])
 
-    def on_coords(self, widget, coords):
+    def on_coords(self, _widget, _coords):
         self.update_matrix()
 
-    def on_rotation(self, widget, rotation):
+    def on_rotation(self, _widget, _rotation):
         self.update_matrix()
 
-    def on_scale_x(self, widget, scale_x):
+    def on_scale_x(self, _widget, _scale_x):
         self.update_matrix()
 
-    def on_scale_y(self, widget, scale_y):
+    def on_scale_y(self, _widget, _scale_y):
         self.update_matrix()
 
-    def on_scale(self, widget, scale):
+    def on_scale(self, _widget, scale):
         self.scale_x = self.scale_y = scale
         self.update_matrix()
 
@@ -183,11 +185,11 @@ class Points2D(Widget2D):
         self.update_matrix()
         points = zip(self.points[0::2], self.points[1::2])
         res = []
-        for p in points:
-            res += self.transform_point(p)
+        for pnt in points:
+            res += self.transform_point(pnt)
         self.view_points = tuple(res)
 
-    def on_points(self, widget, points):
+    def on_points(self, _widget, _points):
         self.update_view_points()
 
     def on_coords(self, widget, coords):
@@ -203,7 +205,7 @@ class Line2D(Points2D):
 
     color = ObjectProperty((1, 1, 1, 1))  # RGBA
 
-    def on_color(self, widget, color):
+    def on_color(self, _widget, _color):
         self.update_view_points()
 
 
@@ -219,7 +221,7 @@ class Arc2D(Line2D):
         radius = np.linalg.norm(self.transform_vector((self.circle[2], 0)))
         self.view_circle = tuple(circle + [radius] + list(self.circle[3:]))
 
-    def on_circle(self, widget, circle):
+    def on_circle(self, _widget, _circle):
         self.update_circle()
 
     def update(self):
@@ -244,15 +246,15 @@ class Rectangle2D(Line2D):
         )
         self.update_view_points()
 
-    def on_pos(self, widget, pos):
+    def on_pos(self, _widget, _pos):
         self.update_points()
 
-    def on_size(self, widget, size):
+    def on_size(self, _widget, _size):
         if self.centered:
             self.pos = (-self.size[0] / 2, -self.size[1] / 2)
         self.update_points()
 
-    def on_centered(self, widget, centered):
+    def on_centered(self, _widget, _centered):
         self.update_points()
 
     def collide_point(self, x, y):
